@@ -1,0 +1,23 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: tsung-test
+  name: tsung-test-role
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tsung-test-role-binding
+  namespace: tsung-test
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tsung-test-role
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: tsung-test

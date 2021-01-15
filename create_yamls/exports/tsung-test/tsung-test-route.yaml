@@ -1,0 +1,15 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: tsung-test-nginx-route
+  namespace: tsung-test
+spec:
+  host: tsung-test.apps.oc02.k8s.ctc
+  path: /
+  to:
+    kind: Service
+    name: tsung-test-nginx
+    weight: 100
+  port:
+    targetPort: 80
+  wildcardPolicy: None

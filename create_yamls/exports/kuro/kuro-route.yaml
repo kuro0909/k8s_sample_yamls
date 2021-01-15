@@ -1,0 +1,15 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: kuro-nginx-route
+  namespace: kuro
+spec:
+  host: kuro.apps.oc01.k8s.ctc
+  path: /
+  to:
+    kind: Service
+    name: kuro-nginx
+    weight: 100
+  port:
+    targetPort: 80
+  wildcardPolicy: None

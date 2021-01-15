@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsung-test-nginx
+  namespace: tsung-test
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tsung-test-nginx
+  template:
+    metadata:
+      labels:
+        app: tsung-test-nginx
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - tsung-test-nginx
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /etc/nginx/modifyconf/
+          name: conf
+        command: ["/bin/sh", "-c"]
+        args:
+          - cp /etc/nginx/modifyconf/nginx.conf /etc/nginx/;
+            service nginx restart;
+            truncate -s 64 /usr/share/nginx/html/64b;
+            truncate -s 100k /usr/share/nginx/html/100k;
+            echo `hostname` > /usr/share/nginx/html/index.html;
+            tail -f /dev/null      
+      volumes:
+      - name: conf
+        configMap:
+          name: nginx-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf

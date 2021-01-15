@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ DEPLOYMENT.NAME }}
+  namespace: {{ DEPLOYMENT.NAMESPACE }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ DEPLOYMENT.APPLABEL }}
+  template:
+    metadata:
+      labels:
+        app: {{ DEPLOYMENT.APPLABEL }}
+    spec:
+      containers:
+      - name: centos
+        image: centos
+        command: [ "/bin/bash", "-c", "tail -f /dev/null" ]

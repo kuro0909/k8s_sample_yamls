@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ DEPLOYMENT.NAME }}
+  namespace: {{ DEPLOYMENT.NAMESPACE }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ DEPLOYMENT.APPLABEL }}
+  template:
+    metadata:
+      labels:
+        app: {{ DEPLOYMENT.APPLABEL }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ DEPLOYMENT.APPLABEL }}
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nginx
+        image: nginx
+        volumeMounts:
+        - mountPath: /etc/nginx/modifyconf/
+          name: conf
+        command: ["/bin/sh", "-c"]
+        args:
+          - cp /etc/nginx/modifyconf/nginx.conf /etc/nginx/;
+            service nginx restart;
+            truncate -s 64 /usr/share/nginx/html/64b;
+            truncate -s 100k /usr/share/nginx/html/100k;
+            echo `hostname` > /usr/share/nginx/html/index.html;
+            tail -f /dev/null      
+      volumes:
+      - name: conf
+        configMap:
+          name: nginx-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tsung-test-tsung
+  namespace: tsung-test
+spec:
+  selector:
+    matchLabels:
+      app: tsung-test-tsung
+  template:
+    metadata:
+      labels:
+        app: tsung-test-tsung
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - tsung-test-nginx
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: tsung
+        image: prima/tsung
+        volumeMounts:
+        - mountPath: /tmp/
+          name: conf
+          readOnly: false
+        command: ["/bin/sh", "-c"]
+        args:
+          - sed "s/hostname/`hostname`/g" /tmp/64b.xml > /root/64b.xml;
+            sed "s/hostname/`hostname`/g" /tmp/100k.xml > /root/100k.xml;
+            sed "s/hostname/`hostname`/g" /tmp/24hour-100rps.xml > /root/24hour-100rps.xml;
+            tail -f /dev/null
+      volumes:
+      - name: conf
+        configMap:
+          name: tsung-xml
+          items:
+            - key: 64b.xml
+              path: 64b.xml
+            - key: 100k.xml
+              path: 100k.xml
+            - key: 24hour-100rps.xml
+              path: 24hour-100rps.xml
